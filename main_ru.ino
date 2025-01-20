@@ -12,6 +12,14 @@
 
 #include "config.h"
 
+// ------------------- НАЧАЛО: Добавленные переменные корректировки -------------------
+float temperatureOffset = 0.0; // <-- добавлено для корректировки температуры
+float humidityOffset = 0.0;    // <-- добавлено для корректировки влажности
+float pressureOffset = 0.0;    // <-- добавлено для корректировки давления (в гПа)
+float gasOffset = 0.0;         // <-- добавлено для корректировки VOC (KOhms)
+int co2Offset = 0;             // <-- добавлено для корректировки CO₂ (ppm)
+// ------------------- КОНЕЦ: Добавленные переменные корректировки -------------------
+
 // OLED дисплей настройки
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -106,10 +114,10 @@ void setup() {
   bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
   bme.setGasHeater(320, 150); // 320°C на 150 мс
   
-// Initialize MH-Z19B (UART2 on ESP32)
-mySerial.begin(9600, SERIAL_8N1, 4, 15); // RX=4, TX=15
-myMHZ19.begin(mySerial);
-myMHZ19.autoCalibration();
+  // Initialize MH-Z19B (UART2 on ESP32)
+  mySerial.begin(9600, SERIAL_8N1, 4, 15); // RX=4, TX=15
+  myMHZ19.begin(mySerial);
+  myMHZ19.autoCalibration(); // Включаем авто-калибровку MH-Z19B (опционально)
 
   // Подключение к Wi-Fi
   Serial.print("Подключение к Wi-Fi...");
@@ -164,28 +172,37 @@ void loop() {
 void readSensors() {
   // Чтение данных BME680
   if (bme.performReading()) {
-    temperature = bme.temperature;
-    humidity = bme.humidity;
-    pressure = bme.pressure / 100.0; // гПа (гектопаскали)
-    pressure_mmHg = pressure * 0.75006; // Конвертируем в мм рт. ст.
-    gas = bme.gas_resistance / 1000.0; // KOhms
+    // ------------------- Применяем корректировки -------------------
+    float rawTemperature = bme.temperature;          // из датчика
+    float rawHumidity = bme.humidity;                // из датчика
+    float rawPressure = bme.pressure / 100.0;        // гПа
+    float rawGas = bme.gas_resistance / 1000.0;      // KOhms
+
+    // Применяем офсеты
+    temperature = rawTemperature + temperatureOffset; 
+    humidity    = rawHumidity    + humidityOffset;
+    pressure    = rawPressure    + pressureOffset;
+    pressure_mmHg = pressure * 0.75006;  // перевод в мм рт. ст. (учитываем, что офсет уже учтён в pressure)
+    gas         = rawGas         + gasOffset;
+    // --------------------------------------------------------------
+
     Serial.println("Данные BME680 успешно прочитаны.");
   } else {
     Serial.println("Не удалось выполнить чтение BME680");
   }
   
   // Чтение данных MH-Z19B CO2
-  co2 = myMHZ19.getCO2();
+  int rawCO2 = myMHZ19.getCO2();  // "сырые" данные
+  co2 = rawCO2 + co2Offset;       // применяем коррекцию
   Serial.print("CO2: ");
   Serial.print(co2);
   Serial.println(" ppm");
 }
 
-
 void blinkRGBLed(int co2_value) {
   unsigned long currentMillis = millis();
   
-  if (currentMillis - previousLedMillis >= ledInterval) {
+  if (currentMillis - previousLedMillis >= (unsigned long)ledInterval) {
     previousLedMillis = currentMillis;
     
     // Генерация случайного интервала мигания между 30 и 50 мс
@@ -255,7 +272,6 @@ void displayData() {
   
   display.display();
 }
-
 
 void sendDataToThingSpeak() {
   if (WiFi.status() == WL_CONNECTED) {
