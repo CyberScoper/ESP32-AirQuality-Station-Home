@@ -85,7 +85,7 @@
 - Клонируйте репозиторий:
 
   ```bash
-  git clone https://github.com/CyberScopeToday/ESP32-AirQuality-Station-Home.git
+  git clone https://github.com/CyberScoper/ESP32-AirQuality-Station-Home.git
   ```
 
 - Установите **Arduino IDE** и необходимые библиотеки (см. ниже).
