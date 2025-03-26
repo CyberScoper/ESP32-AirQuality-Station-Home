@@ -1,6 +1,6 @@
 # 🌿 ESP32-Based Air Quality Monitoring Station HOME 🌿
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f300c2f36eb94763bba094d57e5c5512)](https://app.codacy.com/gh/CyberScopeToday/ESP32-AirQuality-Station-Home?utm_source=github.com&utm_medium=referral&utm_content=CyberScopeToday/ESP32-AirQuality-Station-Home&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f300c2f36eb94763bba094d57e5c5512)](https://app.codacy.com/gh/CyberScoper/ESP32-AirQuality-Station-Home?utm_source=github.com&utm_medium=referral&utm_content=CyberScoper/ESP32-AirQuality-Station-Home&utm_campaign=Badge_Grade)
 
 <img src="https://github.com/user-attachments/assets/b73504b6-6a63-4535-9e27-ee8864384fa2" width="50%">
 
@@ -88,7 +88,7 @@ Assemble the circuit according to the provided schematics. Ensure all connection
 - Clone the repository:
 
   ```bash
-  git clone https://github.com/CyberScopeToday/ESP32-AirQuality-Station-Home.git
+  git clone https://github.com/CyberScoper/ESP32-AirQuality-Station-Home.git
   ```
 
 - Install **Arduino IDE** and the necessary libraries (see below).
